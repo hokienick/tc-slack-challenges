@@ -30,7 +30,7 @@ challenge.active = (callback) => {
                     moment(challenge.registrationStartDate) < moment()) {
                        
                     var detail = `*Prize*:$ ${challenge.totalPrize}`
-                    detail += `\n*Registeration ends*:${moment(challenge.registrationEndDate).format('MMM DD, YYYY HH:mm')}`
+                    detail += `\n*Registration ends*:${moment(challenge.registrationEndDate).format('MMM DD, YYYY HH:mm')}`
                     detail += `\n*Technologies*: ${challenge.technologies.join(', ')}`
                     detail += `\n*Type*:${challenge.challengeType}`
                     var item = {
