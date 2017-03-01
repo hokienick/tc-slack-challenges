@@ -33,6 +33,9 @@ challenge.active = (callback) => {
                     detail += `\n*Registration ends*:${moment(challenge.registrationEndDate).format('MMM DD, YYYY HH:mm')}`
                     detail += `\n*Technologies*: ${challenge.technologies.join(', ')}`
                     detail += `\n*Type*:${challenge.challengeType}`
+                    if(challenge.eventName){
+                        detail += `\n*Eligible Events*: ${challenge.eventName}`
+                    }
                     var item = {
                         title: `${challenge.challengeName}`,
                         title_link: `https://www.topcoder.com/challenge-details/${challenge.challengeId}/?type=develop&nocache=true`,
