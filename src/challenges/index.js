@@ -6,8 +6,7 @@ const request = require('request')
 const moment = require('moment')
 const config = require('../config')
 
-var endpoint = 'http://api.topcoder.com/v2/challenges/active?type=develop&sortcolumn=registrationEndDate&sortorder=asc';
-
+var endpoint = 'https://api.topcoder.com/v3/challenges?filter=status=ACTIVE%26track=DEVELOP%26isTask=0'
 const challenge = {};
 
 challenge.active = (callback) => {
@@ -22,25 +21,39 @@ challenge.active = (callback) => {
             return callback(new VError(err, 'Invalid Status Code Returned: %s', response.statusCode));
         }
 
-        var result = JSON.parse(body);
+        var body = JSON.parse(body);
         let challenges = [];
 
-        _.each(result.data, (challenge) => {
+        _.each(body.result.content, (challenge) => {
                 if (moment(challenge.registrationStartDate) > moment().subtract(config('HOOK_INTERVAL_IN_MINUTE'), 'm') &&
                     moment(challenge.registrationStartDate) < moment()) {
                        
                     var detail = `*Prize*:$ ${challenge.totalPrize}`
                     detail += `\n*Registration ends*:${moment(challenge.registrationEndDate).format('MMM DD, YYYY HH:mm')}`
-                    detail += `\n*Technologies*: ${challenge.technologies.join(', ')}`
-                    detail += `\n*Type*:${challenge.challengeType}`
-                    if(challenge.eventName){
-                        detail += `\n*Eligible Events*: ${challenge.eventName}`
+                    detail += `\n*Technologies*: ${challenge.technologies}`
+                    detail += `\n*Type*:${challenge.subTrack}`
+                    if(challenge.events && challenge.events.length){
+                        detail += `\n*Eligible Events*: ${challenge.events.map(i=>i.eventName).join(', ')}`
                     }
                     var item = {
-                        title: `${challenge.challengeName}`,
-                        title_link: `https://www.topcoder.com/challenge-details/${challenge.challengeId}/?type=develop&nocache=true`,
+                        title: `${challenge.name}`,
+                        title_link: `https://www.topcoder.com/challenge-details/${challenge.id}/?type=develop&nocache=true`,
                         text: detail,
-                        mrkdwn_in: ['text', 'text', 'pretext']
+                        mrkdwn_in: ['text', 'text', 'pretext'],
+                        actions: [
+                            {
+                              "type": "button",
+                              "text": "Forum",
+                              "url": `https://apps.topcoder.com/forums/?module=Category&categoryID=${challenge.forumId}`,
+                              "style": "primary"
+                            },
+                            {
+                              "type": "button",
+                              "text": "Apply as Reviewer",
+                              "url" : `https://www.topcoder.com/challenges/${challenge.id}/review-opportunities`,
+                              "style": "danger"
+                            }
+                          ]
                     }
                    
                     challenges.push(item);
